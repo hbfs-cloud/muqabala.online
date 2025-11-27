@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useRouter } from 'vue-router'
+import { GoogleLogin } from 'vue3-google-login'
+import apiClient from '../api/client'
 
 const email = ref('')
 const password = ref('')
@@ -17,9 +19,33 @@ const handleLogin = async () => {
   isLoading.value = false
   
   if (success) {
-    router.push('/dashboard') // Assuming dashboard exists, or back to home
+    router.push('/dashboard')
   } else {
     error.value = 'Identifiants incorrects'
+  }
+}
+
+const handleGoogleLogin = async (response) => {
+  try {
+    isLoading.value = true
+    // Send the credential to the backend
+    const res = await apiClient.post('/oauth2-google', {
+      credential: response.credential
+    })
+    
+    // Assuming backend returns user info and sets cookie
+    if (res.data.success) {
+        authStore.user = res.data.user
+        authStore.isAuthenticated = true
+        router.push('/dashboard')
+    } else {
+        error.value = 'Erreur lors de la connexion Google'
+    }
+  } catch (err) {
+    console.error('Google login error', err)
+    error.value = 'Erreur lors de la connexion Google'
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -46,6 +72,14 @@ const handleLogin = async () => {
         <button type="submit" class="submit-btn" :disabled="isLoading">
           {{ isLoading ? 'Connexion...' : 'Se connecter' }}
         </button>
+        
+        <div class="divider">
+            <span>OU</span>
+        </div>
+        
+        <div class="google-login-wrapper">
+            <GoogleLogin :callback="handleGoogleLogin" />
+        </div>
       </form>
     </div>
   </div>
