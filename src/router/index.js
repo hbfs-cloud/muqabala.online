@@ -15,8 +15,22 @@ const router = createRouter({
             path: '/login',
             name: 'login',
             component: LoginView
+        },
+        {
+            path: '/dashboard',
+            name: 'dashboard',
+            component: () => import('../views/DashboardView.vue'),
+            meta: { requiresAuth: true }
         }
     ]
 })
+
+router.beforeEach((to, from, next) => {
+    const publicPages = ['/login', '/'];
+    const authRequired = !publicPages.includes(to.path);
+    // Simple check, in real app check store or cookie
+    // For now we rely on API 401s to redirect to login
+    next();
+});
 
 export default router
