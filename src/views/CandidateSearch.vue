@@ -14,34 +14,47 @@
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-3">
-                <label class="form-label">Age (min-max)</label>
-                <div class="d-flex gap-2">
-                  <input type="number" class="form-control" placeholder="Min" v-model="filters.ageMin">
-                  <input type="number" class="form-control" placeholder="Max" v-model="filters.ageMax">
+                <label class="form-label">Âge</label>
+                <div class="d-flex gap-2 align-items-center">
+                  <input type="number" class="form-control" placeholder="Min" v-model.number="filters.ageMin">
+                  <span>-</span>
+                  <input type="number" class="form-control" placeholder="Max" v-model.number="filters.ageMax">
                 </div>
               </div>
+
               <div class="col-md-3">
-                <label class="form-label">Ville</label>
-                <select class="form-select" v-model="filters.city">
-                  <option value="">Toutes</option>
-                  <option value="Paris">Paris</option>
-                  <option value="Lyon">Lyon</option>
-                  <option value="Marseille">Marseille</option>
-                </select>
+                <label class="form-label">Taille (cm)</label>
+                <div class="d-flex gap-2 align-items-center">
+                  <input type="number" class="form-control" placeholder="Min" v-model.number="filters.heightMin">
+                  <span>-</span>
+                  <input type="number" class="form-control" placeholder="Max" v-model.number="filters.heightMax">
+                </div>
               </div>
+
               <div class="col-md-3">
-                <label class="form-label">Origine</label>
-                <select class="form-select" v-model="filters.origin">
-                  <option value="">Toutes</option>
-                  <option value="Maroc">Maroc</option>
-                  <option value="Algérie">Algérie</option>
-                  <option value="Tunisie">Tunisie</option>
-                  <option value="France">France</option>
-                </select>
+                <MultiSelect
+                  v-model="filters.origins"
+                  :options="countryOptions"
+                  label="Origines"
+                  placeholder="Sélectionner des origines"
+                />
               </div>
-              <div class="col-md-3 d-flex align-items-end">
-                <button class="btn btn-outline-primary w-100" @click="applyFilters">
-                  Appliquer
+
+              <div class="col-md-3">
+                <MultiSelect
+                  v-model="filters.studies"
+                  :options="educationOptions"
+                  label="Niveaux d'étude"
+                  placeholder="Sélectionner des niveaux"
+                />
+              </div>
+
+              <div class="col-12 d-flex gap-2 justify-content-end">
+                <button class="btn btn-outline-secondary" @click="resetFilters">
+                  <i class="ri-refresh-line me-1"></i> Réinitialiser
+                </button>
+                <button class="btn btn-primary" @click="applyFilters">
+                  <i class="ri-search-line me-1"></i> Rechercher
                 </button>
               </div>
             </div>
@@ -101,115 +114,106 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { getCountriesArray, getEducationArray } from '../config/filterConstants'
+import MultiSelect from '../components/MultiSelect.vue'
 import CandidatePublicProfile from '../components/CandidatePublicProfile.vue'
+import apiClient from '../api/client'
 
 const showFilters = ref(false)
 const selectedCandidate = ref(null)
+const loading = ref(false)
 
 const filters = ref({
-  ageMin: '',
-  ageMax: '',
-  city: '',
-  origin: ''
+  ageMin: 18,
+  ageMax: 60,
+  heightMin: 140,
+  heightMax: 210,
+  origins: [],
+  studies: []
 })
 
-// Mock Data
-const candidates = ref([
-  {
-    id: 1,
-    initials: 'AK',
-    name: 'Ahmed K.',
-    age: 28,
-    city: 'Paris',
-    origin: 'Maroc',
-    bio: 'Ingénieur sérieux cherchant à fonder un foyer basé sur les valeurs islamiques.',
-    height: 180,
-    languages: 'Français, Arabe, Anglais',
-    nationality: 'Française',
-    study: 'Master 2',
-    job: 'Ingénieur Logiciel',
-    already_married: 'Jamais',
-    already_kids: 'Aucun',
-    practice: 'Prière quotidienne, Jumu\'a',
-    hijab: 'Condition importante',
-    trait: 'Calme, Réfléchi, Sportif',
-    interests: 'Lecture, Randonnée, Tech',
-    family_relations: 'Très proches',
-    expectations: 'Une partenaire pieuse et bienveillante.',
-    marriage_vision: 'Partenariat, Entraide, Éducation des enfants.',
-    accept_kids: 'Non',
-    accept_origin: 'Oui',
-    blockings: 'Tabac, Non-pratique'
-  },
-  {
-    id: 2,
-    initials: 'SM',
-    name: 'Sarah M.',
-    age: 25,
-    city: 'Lyon',
-    origin: 'Algérie',
-    bio: 'Étudiante en médecine, passionnée et investie dans la communauté.',
-    height: 165,
-    languages: 'Français, Arabe',
-    nationality: 'Française',
-    study: 'Doctorat en cours',
-    job: 'Interne en Médecine',
-    already_married: 'Jamais',
-    already_kids: 'Aucun',
-    practice: 'Voilée, Prière à l\'heure',
-    hijab: 'Porté depuis 5 ans',
-    trait: 'Dynamique, Empathique',
-    interests: 'Bénévolat, Lecture, Voyage',
-    family_relations: 'Bonnes',
-    expectations: 'Un époux compréhensif vis-à-vis de mes études.',
-    marriage_vision: 'Soutien mutuel, Projets communs.',
-    accept_kids: 'À discuter',
-    accept_origin: 'Oui',
-    blockings: 'Manque de respect, Avarice'
-  },
-  {
-    id: 3,
-    initials: 'YB',
-    name: 'Yassine B.',
-    age: 32,
-    city: 'Marseille',
-    origin: 'Tunisie',
-    bio: 'Entrepreneur, aime les voyages et la découverte.',
-    height: 178,
-    languages: 'Français, Anglais',
-    nationality: 'Française',
-    study: 'Licence Pro',
-    job: 'Chef d\'entreprise',
-    already_married: 'Divorcé',
-    already_kids: '1 enfant',
-    practice: 'Régulière',
-    hijab: 'Souhaitable',
-    trait: 'Ambitieux, Généreux',
-    interests: 'Entrepreneuriat, Sport',
-    family_relations: 'Normales',
-    expectations: 'Stabilité et complicité.',
-    marriage_vision: 'Fonder une grande famille.',
-    accept_kids: 'Oui',
-    accept_origin: 'Oui',
-    blockings: 'Mensonge'
+const countryOptions = getCountriesArray()
+const educationOptions = getEducationArray()
+
+const candidates = ref([])
+
+onMounted(() => {
+  loadCandidates()
+})
+
+async function loadCandidates() {
+  try {
+    loading.value = true
+    const response = await apiClient.get('/candidate/candidates-list', {
+      params: filters.value
+    })
+
+    if (response.data && response.data.data) {
+      candidates.value = response.data.data.map(item => ({
+        id: item.id,
+        uuid: item.uuid,
+        initials: getInitials(item.candidate),
+        name: item.candidate.age + ' ans',
+        age: item.candidate.age,
+        bio: item.candidate.trait || 'Aucune description',
+        ...item.candidate,
+        values: item.values,
+        rate: item.rate
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load candidates:', error)
+  } finally {
+    loading.value = false
   }
-])
+}
+
+function getInitials(candidate) {
+  // Generate random initials for privacy
+  return String.fromCharCode(65 + Math.floor(Math.random() * 26)) +
+         String.fromCharCode(65 + Math.floor(Math.random() * 26))
+}
+
+function resetFilters() {
+  filters.value = {
+    ageMin: 18,
+    ageMax: 60,
+    heightMin: 140,
+    heightMax: 210,
+    origins: [],
+    studies: []
+  }
+  loadCandidates()
+}
 
 const applyFilters = () => {
-  console.log('Applying filters:', filters.value)
-  // TODO: Call API with filters
+  loadCandidates()
 }
 
 const viewProfile = (candidate) => {
   selectedCandidate.value = candidate
 }
 
-const sendRequest = (candidate) => {
-  console.log('Sending request to:', candidate.id)
-  // TODO: API call
-  alert('Demande envoyée avec succès !')
-  selectedCandidate.value = null
+const sendRequest = async (candidate) => {
+  try {
+    await apiClient.post('/candidate/request', {
+      target_candidate_uuid: candidate.uuid
+    })
+
+    // Success notification
+    showToast('success', 'Demande envoyée avec succès !', 'La personne recevra votre demande')
+    selectedCandidate.value = null
+  } catch (error) {
+    console.error('Failed to send request:', error)
+    showToast('error', 'Erreur', 'Impossible d\'envoyer la demande. Veuillez réessayer.')
+  }
+}
+
+function showToast(type, title, message) {
+  // Using Bootstrap Toast or implement Toastr
+  console.log(`[${type.toUpperCase()}] ${title}: ${message}`)
+  // TODO: Implement proper toast notification system
 }
 </script>
 

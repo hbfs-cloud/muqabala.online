@@ -54,9 +54,9 @@ const router = createRouter({
             meta: { requiresAuth: true, role: 'candidate' }
         },
         {
-            path: '/candidate/photos',
-            name: 'candidate-photos',
-            component: () => import('../views/CandidatePhotos.vue'),
+            path: '/candidate/media',
+            name: 'candidate-media',
+            component: () => import('../views/CandidateMedia.vue'),
             meta: { requiresAuth: true, role: 'candidate' }
         },
 

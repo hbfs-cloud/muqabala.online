@@ -56,12 +56,26 @@
         <div class="col-md-3 col-sm-6">
           <BaseCard hover>
             <div class="d-flex align-items-center">
-              <div class="stat-icon bg-danger bg-opacity-10 text-danger rounded-circle p-3 me-3">
-                <i class="ri-heart-line ri-2x"></i>
+              <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-circle p-3 me-3">
+                <i class="ri-user-search-line ri-2x"></i>
               </div>
               <div>
-                <h3 class="mb-0">{{ stats.favorites || 0 }}</h3>
-                <p class="text-muted mb-0 small">Favoris</p>
+                <h3 class="mb-0">{{ stats.profiles_viewed || 0 }}</h3>
+                <p class="text-muted mb-0 small">Profils consultés</p>
+              </div>
+            </div>
+          </BaseCard>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+          <BaseCard hover>
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-danger bg-opacity-10 text-danger rounded-circle p-3 me-3">
+                <i class="ri-percent-line ri-2x"></i>
+              </div>
+              <div>
+                <h3 class="mb-0">{{ stats.response_rate || 0 }}%</h3>
+                <p class="text-muted mb-0 small">Taux de réponse</p>
               </div>
             </div>
           </BaseCard>
@@ -176,7 +190,8 @@ const stats = ref({
   profile_views: 0,
   sent_requests: 0,
   received_requests: 0,
-  favorites: 0,
+  profiles_viewed: 0,
+  response_rate: 0,
   profile_completion: 0
 })
 const recentRequests = ref([])

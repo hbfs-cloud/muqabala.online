@@ -99,7 +99,7 @@ const menuItems = computed(() => {
       { path: '/candidate/candidates', label: 'Recherche', icon: 'ri-search-line' },
       { path: '/candidate/requests', label: 'Mes Demandes', icon: 'ri-mail-line' },
       { path: '/candidate/favorites', label: 'Favoris', icon: 'ri-heart-line' },
-      { path: '/candidate/photos', label: 'Photos', icon: 'ri-image-line' }
+      { path: '/candidate/media', label: 'Médias', icon: 'ri-image-line' }
     ]
   } else if (role === 'moderator') {
     return [
