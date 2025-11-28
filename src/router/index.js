@@ -1,36 +1,121 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { useAuthStore } from '../stores/auth'
+import LandingPage from '../views/LandingPage.vue'
 import LoginView from '../views/LoginView.vue'
 
 const router = createRouter({
-    // Use hash history for GitHub Pages compatibility without server-side rewrite rules
     history: createWebHashHistory('/muqabala.online/'),
     routes: [
         {
             path: '/',
             name: 'home',
-            component: HomeView
+            component: LandingPage
         },
         {
             path: '/login',
             name: 'login',
             component: LoginView
         },
+
+        // Candidate Routes
         {
-            path: '/dashboard',
-            name: 'dashboard',
-            component: () => import('../views/DashboardView.vue'),
-            meta: { requiresAuth: true }
+            path: '/candidate',
+            redirect: '/candidate/dashboard',
+            meta: { requiresAuth: true, role: 'candidate' }
+        },
+        {
+            path: '/candidate/dashboard',
+            name: 'candidate-dashboard',
+            component: () => import('../views/CandidateDashboard.vue'),
+            meta: { requiresAuth: true, role: 'candidate' }
+        },
+        {
+            path: '/candidate/profile',
+            name: 'candidate-profile',
+            component: () => import('../views/CandidateProfile.vue'),
+            meta: { requiresAuth: true, role: 'candidate' }
+        },
+        {
+            path: '/candidate/candidates',
+            name: 'candidate-search',
+            component: () => import('../views/CandidateSearch.vue'),
+            meta: { requiresAuth: true, role: 'candidate' }
+        },
+        {
+            path: '/candidate/requests',
+            name: 'candidate-requests',
+            component: () => import('../views/CandidateRequests.vue'),
+            meta: { requiresAuth: true, role: 'candidate' }
+        },
+        {
+            path: '/candidate/favorites',
+            name: 'candidate-favorites',
+            component: () => import('../views/CandidateFavorites.vue'),
+            meta: { requiresAuth: true, role: 'candidate' }
+        },
+        {
+            path: '/candidate/photos',
+            name: 'candidate-photos',
+            component: () => import('../views/CandidatePhotos.vue'),
+            meta: { requiresAuth: true, role: 'candidate' }
+        },
+
+        // Moderator Routes
+        {
+            path: '/moderator',
+            redirect: '/moderator/dashboard',
+            meta: { requiresAuth: true, role: 'moderator' }
+        },
+        {
+            path: '/moderator/dashboard',
+            name: 'moderator-dashboard',
+            component: () => import('../views/ModeratorDashboard.vue'),
+            meta: { requiresAuth: true, role: 'moderator' }
+        },
+
+        // Admin Routes
+        {
+            path: '/admin',
+            redirect: '/admin/dashboard',
+            meta: { requiresAuth: true, role: 'admin' }
+        },
+        {
+            path: '/admin/dashboard',
+            name: 'admin-dashboard',
+            component: () => import('../views/AdminDashboard.vue'),
+            meta: { requiresAuth: true, role: 'admin' }
+        },
+
+        // 404
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'not-found',
+            component: () => import('../views/NotFound.vue')
         }
     ]
 })
 
 router.beforeEach((to, from, next) => {
-    const publicPages = ['/login', '/'];
-    const authRequired = !publicPages.includes(to.path);
-    // Simple check, in real app check store or cookie
-    // For now we rely on API 401s to redirect to login
-    next();
-});
+    const authStore = useAuthStore()
+
+    // Check if route requires authentication
+    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+        next('/login')
+        return
+    }
+
+    // Check role if specified
+    if (to.meta.role && authStore.user?.role !== to.meta.role) {
+        // Redirect to appropriate dashboard based on role
+        const role = authStore.user?.role
+        if (role === 'candidate') next('/candidate/dashboard')
+        else if (role === 'moderator') next('/moderator/dashboard')
+        else if (role === 'admin') next('/admin/dashboard')
+        else next('/login')
+        return
+    }
+
+    next()
+})
 
 export default router
