@@ -1,60 +1,42 @@
 <template>
   <div class="mb-3">
-    <label v-if="label" :for="inputId" class="form-label">
-      {{ label }}
-      <span v-if="required" class="text-danger">*</span>
-    </label>
+    <label v-if="label" class="form-label fw-bold">{{ label }}</label>
     
-    <div class="input-group" :class="{ 'has-validation': error }">
-      <span v-if="prepend" class="input-group-text">
-        <i v-if="prependIcon" :class="prependIcon"></i>
-        <span v-else>{{ prepend }}</span>
-      </span>
-      
-      <input
-        :id="inputId"
-        :type="type"
-        :class="inputClasses"
-        :value="modelValue"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        :readonly="readonly"
-        :required="required"
-        :min="min"
-        :max="max"
-        :step="step"
-        @input="handleInput"
-        @blur="handleBlur"
-        @focus="handleFocus"
-      />
-      
-      <span v-if="append" class="input-group-text">
-        <i v-if="appendIcon" :class="appendIcon"></i>
-        <span v-else>{{ append }}</span>
-      </span>
-    </div>
+    <textarea
+      v-if="type === 'textarea'"
+      class="form-control"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+      :placeholder="placeholder"
+      :disabled="disabled"
+      :rows="rows"
+    ></textarea>
+    
+    <input
+      v-else
+      :type="type"
+      class="form-control"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+      :placeholder="placeholder"
+      :disabled="disabled"
+    />
     
     <div v-if="error" class="invalid-feedback d-block">
       {{ error }}
     </div>
-    
-    <small v-if="hint && !error" class="form-text text-muted">
-      {{ hint }}
-    </small>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
-const props = defineProps({
+defineProps({
+  label: {
+    type: String,
+    default: ''
+  },
   modelValue: {
     type: [String, Number],
     default: ''
-  },
-  label: {
-    type: String,
-    default: null
   },
   type: {
     type: String,
@@ -68,71 +50,27 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  readonly: {
-    type: Boolean,
-    default: false
-  },
-  required: {
-    type: Boolean,
-    default: false
-  },
   error: {
     type: String,
-    default: null
+    default: ''
   },
-  hint: {
-    type: String,
-    default: null
-  },
-  prepend: {
-    type: String,
-    default: null
-  },
-  prependIcon: {
-    type: String,
-    default: null
-  },
-  append: {
-    type: String,
-    default: null
-  },
-  appendIcon: {
-    type: String,
-    default: null
-  },
-  min: {
+  rows: {
     type: [String, Number],
-    default: null
-  },
-  max: {
-    type: [String, Number],
-    default: null
-  },
-  step: {
-    type: [String, Number],
-    default: null
+    default: 3
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'blur', 'focus'])
-
-const inputId = computed(() => `input-${Math.random().toString(36).substr(2, 9)}`)
-
-const inputClasses = computed(() => {
-  const classes = ['form-control']
-  if (props.error) classes.push('is-invalid')
-  return classes.join(' ')
-})
-
-const handleInput = (event) => {
-  emit('update:modelValue', event.target.value)
-}
-
-const handleBlur = (event) => {
-  emit('blur', event)
-}
-
-const handleFocus = (event) => {
-  emit('focus', event)
-}
+defineEmits(['update:modelValue'])
 </script>
+
+<style scoped>
+.form-label {
+  color: #4a5568;
+  font-size: 0.875rem;
+}
+
+.form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+</style>

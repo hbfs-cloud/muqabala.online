@@ -8,10 +8,10 @@
         </a>
         
         <div class="ms-auto">
-          <a href="/login" class="btn btn-primary px-4">
+          <router-link to="/login" class="btn btn-primary px-4">
             <i class="ri-user-line me-2"></i>
             <span>Se connecter</span>
-          </a>
+          </router-link>
         </div>
       </div>
     </nav>
@@ -26,8 +26,8 @@
         </p>
         
         <div class="d-flex justify-content-center gap-3">
-          <a href="/login" class="btn btn-primary btn-lg">Commencer ma démarche</a>
-          <a href="#process" class="btn btn-outline-secondary btn-lg">Comment ça marche ?</a>
+          <router-link to="/login" class="btn btn-primary btn-lg">Commencer ma démarche</router-link>
+          <button @click="scrollToProcess" class="btn btn-outline-secondary btn-lg">Comment ça marche ?</button>
         </div>
       </div>
     </section>
@@ -88,7 +88,7 @@
       <div class="container text-center">
         <h2 class="mb-4">Prêt à commencer votre démarche ?</h2>
         <p class="lead mb-4">Rejoignez notre communauté et trouvez votre moitié en toute sérénité.</p>
-        <a href="/login" class="btn btn-light btn-lg">Créer mon profil</a>
+        <router-link to="/login" class="btn btn-light btn-lg">Créer mon profil</router-link>
       </div>
     </section>
 
@@ -105,6 +105,13 @@
 import { ref, computed } from 'vue'
 
 const currentYear = computed(() => new Date().getFullYear())
+
+const scrollToProcess = () => {
+  const element = document.getElementById('process')
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' })
+  }
+}
 
 const processSteps = ref([
   {

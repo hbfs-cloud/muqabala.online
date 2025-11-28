@@ -4,7 +4,7 @@ import LandingPage from '../views/LandingPage.vue'
 import LoginView from '../views/LoginView.vue'
 
 const router = createRouter({
-    history: createWebHashHistory('/muqabala.online/'),
+    history: createWebHashHistory(),
     routes: [
         {
             path: '/',
