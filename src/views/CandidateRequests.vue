@@ -111,35 +111,7 @@
         <!-- Tab Profil -->
         <div v-if="activeTab === 'profile'" class="card border-0 shadow-sm">
           <div class="card-body">
-            <!-- Informations de Base -->
-            <div class="info-section">
-              <div class="info-section-title">Informations de Base</div>
-              <div class="info-row">
-                <div class="info-label">Age</div>
-                <div class="info-value">{{ selectedRequest.other.age }} ans</div>
-              </div>
-              <div class="info-row">
-                <div class="info-label">Origine</div>
-                <div class="info-value">{{ selectedRequest.other.origin }}</div>
-              </div>
-              <div class="info-row">
-                <div class="info-label">Ville</div>
-                <div class="info-value">{{ selectedRequest.other.city }}</div>
-              </div>
-            </div>
-
-            <!-- Formation -->
-            <div class="info-section">
-              <div class="info-section-title">Formation & Profession</div>
-              <div class="info-row">
-                <div class="info-label">Niveau d'étude</div>
-                <div class="info-value">{{ selectedRequest.other.study }}</div>
-              </div>
-              <div class="info-row">
-                <div class="info-label">Profession</div>
-                <div class="info-value">{{ selectedRequest.other.job }}</div>
-              </div>
-            </div>
+            <CandidatePublicProfile :candidate="selectedRequest.other" />
           </div>
         </div>
 
@@ -167,6 +139,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import CandidatePublicProfile from '../components/CandidatePublicProfile.vue'
 
 // State
 const selectedRequest = ref(null)
