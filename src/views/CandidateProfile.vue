@@ -238,7 +238,6 @@ import api from '../api/client'
 const authStore = useAuthStore()
 const activeTab = ref('general')
 
-// Mock Profile Data (sera remplacé par l'API)
 const profile = ref({
   name: authStore.user?.name || '',
   email: authStore.user?.email || '',
@@ -268,21 +267,21 @@ const profile = ref({
 
 const saveProfile = async () => {
   try {
-    // TODO: Connect to API
-    console.log('Saving profile:', profile.value)
-    alert('Profil enregistré avec succès !')
+    await api.post('/candidate/profile/update', profile.value)
+    console.log('[SUCCESS] Profil enregistré avec succès')
   } catch (error) {
-    console.error('Error saving profile:', error)
+    console.error('[ERROR] Failed to save profile:', error)
   }
 }
 
 onMounted(async () => {
   try {
-    // Charger les données du profil depuis l'API
-    // const response = await api.get('/candidate/profile')
-    // profile.value = { ...profile.value, ...response.data }
+    const response = await api.get('/candidate/profile')
+    if (response.data) {
+      profile.value = { ...profile.value, ...response.data }
+    }
   } catch (error) {
-    console.error('Error loading profile:', error)
+    console.error('[ERROR] Failed to load profile:', error)
   }
 })
 </script>

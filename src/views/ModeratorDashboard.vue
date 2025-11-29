@@ -227,31 +227,16 @@ async function loadDashboard() {
   try {
     loading.value = true
 
-    // TODO: Replace with actual API endpoint when available
-    // For now, using mock data structure
-    // const response = await apiClient.get('/moderator/dashboard/stats')
+    const response = await apiClient.get('/moderator/dashboard/stats')
 
-    // Mock data - replace with actual API call
-    stats.value = {
-      pending_photos: 3,
-      pending_candidates: 5,
-      reports: 2,
-      new_candidates_week: 12
+    if (response.data) {
+      stats.value = response.data.stats
+      pendingPhotos.value = response.data.pending_photos || []
+      pendingCandidates.value = response.data.pending_candidates || []
+      reports.value = response.data.reports || []
     }
 
-    pendingPhotos.value = [
-      // { id: 1, candidate_name: 'Candidat A', candidate_uuid: 'uuid-1' }
-    ]
-
-    pendingCandidates.value = [
-      // { uuid: 'uuid-1', name: 'Candidat B' }
-    ]
-
-    reports.value = [
-      // { id: 1, candidate_name: 'Candidat C', candidate_uuid: 'uuid-2', reason: 'Profil suspect' }
-    ]
-
-    console.log('[INFO] Dashboard modérateur chargé')
+    console.log('[SUCCESS] Dashboard modérateur chargé')
   } catch (error) {
     console.error('[ERROR] Failed to load moderator dashboard:', error)
   } finally {

@@ -13,6 +13,24 @@
       </div>
     </div>
 
+    <!-- Primary Photo (if available) -->
+    <div v-if="candidate.primary_photo" class="mb-4">
+      <div class="primary-photo-container">
+        <img
+          v-if="candidate.primary_photo.media_type === 'photo'"
+          :src="`/api/v1/candidate/photo/${candidate.primary_photo.id}`"
+          alt="Photo de profil"
+          class="img-fluid rounded primary-photo"
+        />
+        <video
+          v-else-if="candidate.primary_photo.media_type === 'video'"
+          :src="`/api/v1/candidate/photo/${candidate.primary_photo.id}`"
+          controls
+          class="img-fluid rounded primary-photo"
+        ></video>
+      </div>
+    </div>
+
     <!-- Onglets -->
     <ul class="nav nav-tabs nav-fill mb-3" role="tablist">
       <li class="nav-item">
@@ -50,23 +68,25 @@
         <div class="card-body">
           <div class="info-section">
             <div class="info-section-title">Informations de Base</div>
-            <InfoRow label="Age" :value="candidate.age + ' ans'" />
+            <InfoRow label="Age" :value="candidate.age ? candidate.age + ' ans' : '-'" />
             <InfoRow label="Origine" :value="candidate.origin" />
-            <InfoRow label="Taille" :value="candidate.height + ' cm'" />
+            <InfoRow label="Taille" :value="candidate.height ? candidate.height + ' cm' : '-'" />
             <InfoRow label="Langues parlées" :value="candidate.languages" />
-            <InfoRow label="Nationalité" :value="candidate.nationality" />
+            <InfoRow label="Nationalité(s)" :value="candidate.nationality" />
           </div>
-          
+
           <div class="info-section">
             <div class="info-section-title">Formation & Profession</div>
             <InfoRow label="Niveau d'étude" :value="candidate.study" />
-            <InfoRow label="Diplôme / Profession" :value="candidate.job" />
+            <InfoRow label="Diplôme / Profession" :value="candidate.work" />
           </div>
 
           <div class="info-section">
             <div class="info-section-title">Situation Familiale</div>
             <InfoRow label="Déjà marié(e)" :value="candidate.already_married" />
             <InfoRow label="Enfants à charge" :value="candidate.already_kids" />
+            <InfoRow label="Accepte personne déjà mariée avec enfants" :value="candidate.accepted_other_kids" />
+            <InfoRow label="Accepte origine différente" :value="candidate.accepted_other_origins" />
           </div>
         </div>
       </div>
@@ -79,12 +99,12 @@
             <InfoRow label="Pratique religieuse" :value="candidate.practice" />
             <InfoRow label="Voile" :value="candidate.hijab" />
           </div>
-          
+
           <div class="info-section">
             <div class="info-section-title">Personnalité</div>
             <InfoRow label="Caractère" :value="candidate.trait" />
             <InfoRow label="Centres d'intérêts" :value="candidate.interests" />
-            <InfoRow label="Rapports famille" :value="candidate.family_relations" />
+            <InfoRow label="Rapports avec la famille" :value="candidate.your_family" />
           </div>
         </div>
       </div>
@@ -94,15 +114,24 @@
         <div class="card-body">
           <div class="info-section">
             <div class="info-section-title">Profil Recherché</div>
-            <InfoRow label="Attentes" :value="candidate.expectations" />
-            <InfoRow label="Vision du mariage" :value="candidate.marriage_vision" />
+            <InfoRow label="L'époux/épouse qui te correspond ?" :value="candidate.search" />
+            <InfoRow label="Attentes envers l'époux/épouse" :value="candidate.consort" />
           </div>
-          
+
+          <div class="info-section">
+            <div class="info-section-title">Vision du Mariage</div>
+            <InfoRow label="Attentes du mariage" :value="candidate.expectations" />
+            <InfoRow label="Education des enfants" :value="candidate.kids_education_perspective" />
+          </div>
+
           <div class="info-section">
             <div class="info-section-title">Critères</div>
-            <InfoRow label="Accepte enfants" :value="candidate.accept_kids" />
-            <InfoRow label="Accepte origine diff." :value="candidate.accept_origin" />
-            <InfoRow label="Rédhibitoire" :value="candidate.blockings" />
+            <InfoRow label="Critères rédhibitoires" :value="candidate.blockings" />
+          </div>
+
+          <div v-if="candidate.other" class="info-section">
+            <div class="info-section-title">Autres Informations</div>
+            <InfoRow label="Maladie ou Autre" :value="candidate.other" />
           </div>
         </div>
       </div>
@@ -202,5 +231,18 @@ const InfoRow = {
     min-width: 100%;
     margin-bottom: 0.25rem;
   }
+}
+
+.primary-photo-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.primary-photo {
+  max-height: 400px;
+  width: 100%;
+  object-fit: cover;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>

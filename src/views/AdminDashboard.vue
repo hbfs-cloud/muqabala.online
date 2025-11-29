@@ -288,29 +288,14 @@ async function loadDashboard() {
   try {
     loading.value = true
 
-    // TODO: Replace with actual API endpoint when available
-    // const response = await apiClient.get('/admin/dashboard/stats')
+    const response = await apiClient.get('/admin/dashboard/stats')
 
-    // Mock data - replace with actual API call
-    stats.value = {
-      total_users: 156,
-      new_users_month: 23,
-      total_candidates: 142,
-      published_candidates: 128,
-      total_requests: 89,
-      accepted_requests: 45,
-      system_health: '100%',
-      conversion_rate: 51,
-      profiles_completed: 87,
-      avg_engagement: 64,
-      storage_used: 42
+    if (response.data) {
+      stats.value = response.data.stats
+      recentUsers.value = response.data.recent_users || []
     }
 
-    recentUsers.value = [
-      // { id: 1, name: 'User A', email: 'user@example.com', role: 'candidate' }
-    ]
-
-    console.log('[INFO] Dashboard admin chargé')
+    console.log('[SUCCESS] Dashboard admin chargé')
   } catch (error) {
     console.error('[ERROR] Failed to load admin dashboard:', error)
   } finally {

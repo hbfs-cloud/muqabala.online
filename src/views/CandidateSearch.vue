@@ -211,9 +211,7 @@ const sendRequest = async (candidate) => {
 }
 
 function showToast(type, title, message) {
-  // Using Bootstrap Toast or implement Toastr
   console.log(`[${type.toUpperCase()}] ${title}: ${message}`)
-  // TODO: Implement proper toast notification system
 }
 </script>
 

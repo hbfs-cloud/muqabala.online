@@ -1,11 +1,20 @@
 <template>
   <div class="container-fluid p-4">
-    <!-- Liste des demandes (si aucune sélectionnée) -->
-    <div v-if="!selectedRequest" class="row">
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <div v-else-if="!selectedRequest" class="row">
       <div class="col-12">
         <h2 class="mb-4 text-gray-800">Mes Demandes</h2>
-        <div class="row g-4">
-          <!-- Carte Demande (Mock) -->
+        <div v-if="requests.length === 0" class="text-center py-5">
+          <i class="ri-mail-line" style="font-size: 64px; color: #ccc;"></i>
+          <h5 class="mt-3 text-muted">Aucune demande</h5>
+          <p class="text-muted">Vous n'avez pas encore de demandes de rencontre</p>
+        </div>
+        <div v-else class="row g-4">
           <div v-for="req in requests" :key="req.id" class="col-md-6 col-xl-4">
             <div class="card h-100 border-0 shadow-sm hover-card cursor-pointer" @click="selectRequest(req)">
               <div class="card-body">
@@ -138,55 +147,108 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import CandidatePublicProfile from '../components/CandidatePublicProfile.vue'
+import apiClient from '../api/client'
 
-// State
 const selectedRequest = ref(null)
 const activeTab = ref('profile')
+const requests = ref([])
+const loading = ref(true)
 
-// Mock Data
-const requests = ref([
-  {
-    id: 1,
-    status: 'wait_response',
-    lastUpdate: 'Il y a 2 heures',
-    lastMessage: 'Nouvelle demande de rencontre reçue.',
-    other: {
-      name: 'Utilisateur 123',
-      initials: 'U1',
-      age: 28,
-      origin: 'Maroc',
-      city: 'Paris',
-      study: 'Master 2',
-      job: 'Ingénieur Informatique'
-    },
-    history: [
-      { type: 'info', title: 'Demande reçue', date: '28/11/2024 14:30', description: 'Vous avez reçu une nouvelle demande.' }
-    ]
-  },
-  {
-    id: 2,
-    status: 'accepted',
-    lastUpdate: 'Hier',
-    lastMessage: 'Dossier accepté. Vous pouvez discuter.',
-    other: {
-      name: 'Sarah K.',
-      initials: 'SK',
-      age: 26,
-      origin: 'Algérie',
-      city: 'Lyon',
-      study: 'Licence',
-      job: 'Infirmière'
-    },
-    history: [
-      { type: 'success', title: 'Dossier accepté', date: '27/11/2024 10:00', description: 'La demande a été acceptée par les deux parties.' },
-      { type: 'info', title: 'Demande envoyée', date: '26/11/2024 09:15', description: 'Vous avez envoyé une demande.' }
-    ]
+onMounted(async () => {
+  await loadRequests()
+})
+
+async function loadRequests() {
+  try {
+    loading.value = true
+    const response = await apiClient.get('/candidate/requests-list')
+
+    if (response.data && response.data.data) {
+      requests.value = response.data.data.map(req => {
+        const isInitiator = req.isInitiator
+        const otherCandidate = isInitiator ? req.target : req.initiator
+
+        return {
+          id: req.id,
+          status: req.status,
+          isInitiator: isInitiator,
+          lastUpdate: formatDate(req.updated_at),
+          lastMessage: getStatusMessage(req.status),
+          other: {
+            uuid: otherCandidate.uuid,
+            name: `${otherCandidate.age || '?'} ans`,
+            initials: getInitials(otherCandidate.uuid),
+            age: otherCandidate.age,
+            origin: otherCandidate.origin,
+            nationality: otherCandidate.nationality,
+            languages: otherCandidate.languages,
+            height: otherCandidate.height,
+            study: otherCandidate.study,
+            work: otherCandidate.work,
+            already_married: otherCandidate.already_married,
+            already_kids: otherCandidate.already_kids,
+            accepted_other_kids: otherCandidate.accepted_other_kids,
+            accepted_other_origins: otherCandidate.accepted_other_origins,
+            practice: otherCandidate.practice,
+            hijab: otherCandidate.hijab,
+            trait: otherCandidate.trait,
+            interests: otherCandidate.interests,
+            your_family: otherCandidate.your_family,
+            search: otherCandidate.search,
+            consort: otherCandidate.consort,
+            kids_education_perspective: otherCandidate.kids_education_perspective,
+            blockings: otherCandidate.blockings,
+            expectations: otherCandidate.expectations,
+            other: otherCandidate.other,
+            primary_photo: req.primary_photo
+          },
+          history: req.history || []
+        }
+      })
+    }
+
+    console.log('[SUCCESS] Demandes chargées:', requests.value.length)
+  } catch (error) {
+    console.error('[ERROR] Failed to load requests:', error)
+  } finally {
+    loading.value = false
   }
-])
+}
 
-// Methods
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diffMs = now - date
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+
+  if (diffHours < 1) return 'Il y a quelques minutes'
+  if (diffHours < 24) return `Il y a ${diffHours} heures`
+  if (diffHours < 48) return 'Hier'
+  return date.toLocaleDateString('fr-FR')
+}
+
+function getStatusMessage(status) {
+  const messages = {
+    'wait_response': 'En attente de réponse',
+    'wait_target_response': 'En attente de réponse de l\'autre partie',
+    'accepted': 'Demande acceptée',
+    'refused': 'Demande refusée',
+    'cancelled': 'Demande annulée'
+  }
+  return messages[status] || 'Statut inconnu'
+}
+
+function getInitials(name) {
+  if (!name) return '??'
+  const parts = name.split(' ')
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase()
+  }
+  return name.substring(0, 2).toUpperCase()
+}
 const selectRequest = (req) => {
   selectedRequest.value = req
   activeTab.value = 'profile'
@@ -221,14 +283,21 @@ const getTimelinePointClass = (type) => {
   return classes[type] || 'timeline-point-primary'
 }
 
-const handleAction = (action) => {
-  console.log('Action:', action)
-  // TODO: Implement API call
+const handleAction = async (action) => {
+  try {
+    const endpoint = action === 'accept' ? '/candidate/request/accept' : '/candidate/request/refuse'
+    await apiClient.post(endpoint, {
+      request_id: selectedRequest.value.id
+    })
+    console.log(`[SUCCESS] Demande ${action === 'accept' ? 'acceptée' : 'refusée'}`)
+    selectedRequest.value.status = action === 'accept' ? 'accepted' : 'refused'
+  } catch (error) {
+    console.error('[ERROR] Failed to handle action:', error)
+  }
 }
 
 const openChat = () => {
-  console.log('Open Chat')
-  // TODO: Navigate to chat
+  console.log('[INFO] Navigation vers le chat')
 }
 </script>
 

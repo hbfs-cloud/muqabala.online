@@ -309,7 +309,6 @@ async function toggleHidden(item) {
 }
 
 async function deleteMedia(item) {
-  // TODO: Implement proper confirmation modal instead of confirm()
   try {
     await apiClient.post('/candidate/photo/delete', {
       id: item.id
