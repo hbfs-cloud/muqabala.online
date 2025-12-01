@@ -82,7 +82,7 @@
               <!-- Main Image/Illustration Placeholder -->
               <div class="card border-0 shadow-lg" style="transform: rotate(-2deg);">
                 <div class="card-body p-2">
-                  <img src="/assets/img/illustrations/couple-wedding.svg" alt="Mariage" class="img-fluid rounded" style="max-height: 400px;" onerror="this.src='https://placehold.co/600x400/f8f9fa/696cff?text=Muqabala';">
+                  <img src="https://placehold.co/600x400/f8f9fa/696cff?text=Muqabala" alt="Mariage" class="img-fluid rounded" style="max-height: 400px;" onerror="this.src='https://placehold.co/600x400/f8f9fa/696cff?text=Muqabala';">
                 </div>
               </div>
             </div>
