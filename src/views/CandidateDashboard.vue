@@ -173,6 +173,7 @@
         </div>
       </div>
     </div>
+    <Chatbot />
   </DashboardLayout>
 </template>
 
@@ -182,6 +183,7 @@ import { useAuthStore } from '../stores/auth'
 import apiClient from '../api/client'
 import DashboardLayout from '../components/DashboardLayout.vue'
 import BaseCard from '../components/BaseCard.vue'
+import Chatbot from '../components/Chatbot.vue'
 
 const authStore = useAuthStore()
 

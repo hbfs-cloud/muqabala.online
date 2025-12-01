@@ -106,12 +106,14 @@ const menuItems = computed(() => {
       { path: '/moderator/dashboard', label: 'Dashboard', icon: 'ri-dashboard-line' },
       { path: '/moderator/candidates', label: 'Candidats', icon: 'ri-user-line' },
       { path: '/moderator/requests', label: 'Demandes', icon: 'ri-mail-line' },
-      { path: '/moderator/photos', label: 'Photos', icon: 'ri-image-line' }
+      { path: '/moderator/photos', label: 'Photos', icon: 'ri-image-line' },
+      { path: '/moderator/system', label: 'Système', icon: 'ri-settings-3-line' }
     ]
   } else if (role === 'admin') {
     return [
       { path: '/admin/dashboard', label: 'Dashboard', icon: 'ri-dashboard-line' },
       { path: '/admin/users', label: 'Utilisateurs', icon: 'ri-user-line' },
+      { path: '/admin/features', label: 'Fonctionnalités', icon: 'ri-toggle-line' },
       { path: '/admin/settings', label: 'Paramètres', icon: 'ri-settings-line' },
       { path: '/admin/logs', label: 'Logs', icon: 'ri-file-list-line' }
     ]

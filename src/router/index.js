@@ -72,6 +72,12 @@ const router = createRouter({
             component: () => import('../views/ModeratorDashboard.vue'),
             meta: { requiresAuth: true, role: 'moderator' }
         },
+        {
+            path: '/moderator/system',
+            name: 'moderator-system',
+            component: () => import('../views/ModeratorSystem.vue'),
+            meta: { requiresAuth: true, role: 'moderator' }
+        },
 
         // Admin Routes
         {
@@ -83,6 +89,12 @@ const router = createRouter({
             path: '/admin/dashboard',
             name: 'admin-dashboard',
             component: () => import('../views/AdminDashboard.vue'),
+            meta: { requiresAuth: true, role: 'admin' }
+        },
+        {
+            path: '/admin/features',
+            name: 'admin-features',
+            component: () => import('../views/AdminFeatureFlags.vue'),
             meta: { requiresAuth: true, role: 'admin' }
         },
 
