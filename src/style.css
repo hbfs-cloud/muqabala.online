@@ -38,6 +38,14 @@ body {
   line-height: 1.6;
 }
 
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
 #app {
   width: 100%;
   min-height: 100vh;
